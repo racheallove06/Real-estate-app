@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Flex, Grid, Box, Text, Button } from "@chakra-ui/react";
-import { fetchApi } from "../../utils/fetchApi";
+import { fetchApi, baseUrl } from "../../utils/fetchApi";
 export const Banner = ({
   purpose,
   title1,
@@ -35,10 +35,10 @@ export const Banner = ({
   </Flex>
 );
 
-function Page() {
+function Page({ propertiesForRent, propertiesForSale }) {
+  console.log(propertiesForRent, propertiesForSale);
   return (
-    <div>
-      <h1>Hello World </h1>
+    <Box>
       <Banner
         purpose="For Sale"
         title1="Rental home for "
@@ -59,7 +59,24 @@ function Page() {
         buttonText="Explore Buying"
         imageUrl="https://bayut-production.s3.eu-central-1.amazonaws.com/image/110993385/6a070e8e1bae4f7d8c1429bc303d2008"
       />
-    </div>
+    </Box>
   );
 }
+
+async function getPropertiesData() {
+  const propertyForSale = await fetchApi(
+    `${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-sale&hitsPerPage=6`
+  );
+  const propertyForRent = await fetchApi(
+    `${baseUrl}/properties/list?locationExternalIDs=5002&purpose=for-rent&hitsPerPage=6`
+  );
+
+  return {
+    propertiesForRent: propertyForRent?.hits,
+    propertiesForSale: propertyForSale?.hits,
+  };
+}
+Page.getInitialProps = async () => {
+  return getPropertiesData();
+};
 export default Page;
